@@ -1,3 +1,5 @@
 ### README
 
-Run python server in this directory: python -m SimpleHTTPServer 8000
+Run python server in this directory:
+
+`python -m SimpleHTTPServer 8000`
