@@ -1,6 +1,5 @@
 
 // Progressive Enhancement (SW supported)
-// if ("serviceWorker" in navigator) {
 if (navigator.serviceWorker) {
 
   // Register the SW
@@ -26,3 +25,30 @@ fetch("camera_feed.html")
 }).then((html) => {
   document.getElementById("camera").innerHTML = html;
 });
+
+//Notification support
+if(window.Notification) {
+
+    function showNotification() {
+        let notificationOpts = {
+            body: "Some notification information",
+            icon: "/icon.png",
+        }
+        let n = new Notification("My New Notification", notificationOpts);
+
+        n.onClick = () => {
+            console.log("Notification Clicked");
+        }
+    }
+
+    //manage permission
+    if(Notification.permission === "granted") {
+        showNotification();
+    } else if(Notification.permission !== "denied") {
+        Notification.requestPermission((permission) => {
+            if(permission === "granted") {
+                showNotification();
+            }
+        });
+    }
+}
