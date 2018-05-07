@@ -1,19 +1,17 @@
 
 // Service Worker
-const pwaCache = "pwa-cache-2";
+const pwaCache = "pwa-cache-1";
 
+// Static assets to cache on install
+const staticCache = [ "/", "index.html", "/placeholder.png", "/style.css", "/thumb.png", "/main.js" ];
+
+// SW install and cache static assets
 self.addEventListener("install", (e) => {
 
     let cacheReady = caches.open(pwaCache).then((cache) => {
-        return cache.addAll([
-            "/",
-            "style.css",
-            "thumb.png",
-            "main.js"
-        ]);
+        return cache.addAll(staticCache);
     });
 
-    console.log("New cache ready.");
     e.waitUntil(cacheReady);
 });
 
@@ -32,32 +30,38 @@ self.addEventListener("activate", (e) => {
 
 self.addEventListener("fetch", (e) => {
 
-  // Skip for remote fetch
-  if( !e.request.url.match(location.origin)) {
-    return;
-  }
+  // Cache and network race with offline fallback
+  let firstResponse = new Promise((resolve, reject) => {
 
-  // Serve local fetch from cache
-
-    let newRes = caches.open(pwaCache).then((cache) => {
-
-        return cache.match(e.request).then((res) => {
-
-            // Check request was found in cache
-            if(res) {
-                console.log(`Serving ${res.url} from cache`);
-                return res;
+      // Track rejections
+      let firstRejectionReceived = false;
+      let rejectOnce = () => {
+      if(firstRejectionReceived) {
+            console.log("HERE");
+            if(e.request.url.match('thumb.png')) {
+                console.log("HERE 2");
+                resolve(caches.match("/placeholder.png"));
+            } else {
+                reject("No Response Received.");
             }
+        } else {
+            firstRejectionReceived = true;
+        }
+      };
 
-            // fetch on behalf of client and cache
-            return fetch(e.request).then((fetchRes) => {
-                cache.put(e.request, fetchRes.clone());
-                return fetchRes;
-            })
-        });
-    });
+        // Try Network
+        fetch(e.request).then((res) => {
+            // check res ok
+            res.ok ? resolve(res) : rejectOnce();
+        }).catch(rejectOnce);
 
-    e.respondWith(newRes);
+        // Try Cache
+        caches.match(e.request).then((res) => {
+            // Check cache found
+            res ? resolve(res) : rejectOnce();
+        }).catch(rejectOnce);
+  });
+  e.respondWith(firstResponse);
 
   // if (e.request.url.endsWith("/camera_feed.html")) {
 
