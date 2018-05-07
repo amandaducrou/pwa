@@ -2,20 +2,21 @@
 if (navigator.serviceWorker) {
 
 
-  function urlBase64ToUint8Array(base64String) {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding)
-      .replace(/\-/g, '+')
-      .replace(/_/g, '/');
+  // Helper function
+  // function urlBase64ToUint8Array(base64String) {
+  //   const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  //   const base64 = (base64String + padding)
+  //     .replace(/\-/g, '+')
+  //     .replace(/_/g, '/');
 
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
+  //   const rawData = window.atob(base64);
+  //   const outputArray = new Uint8Array(rawData.length);
 
-    for (let i = 0; i < rawData.length; ++i) {
-      outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
-  }
+  //   for (let i = 0; i < rawData.length; ++i) {
+  //     outputArray[i] = rawData.charCodeAt(i);
+  //   }
+  //   return outputArray;
+  // }
 
   // Register the SW
   navigator.serviceWorker.register("/sw.js").then(function(registration) {
@@ -23,19 +24,19 @@ if (navigator.serviceWorker) {
     console.log("SW Registered");
 
     // best practice is to request from server
-    let pubKey = "BCyv-_yXc6FQvRG1rlHCtByM3W1F30t6aiWgYYnGd7yjxLcN5rhNaVFh1IWWr0gHhRHxWdYNUjlfiIfqEqKs6AI";
+    // let pubKey = "BCyv-_yXc6FQvRG1rlHCtByM3W1F30t6aiWgYYnGd7yjxLcN5rhNaVFh1IWWr0gHhRHxWdYNUjlfiIfqEqKs6AI";
 
-    registration.pushManager.getSubscription().then((sub) => {
+    // registration.pushManager.getSubscription().then((sub) => {
 
-      //if subscription found, return
-      if(sub) return sub;
+    //   //if subscription found, return
+    //   if(sub) return sub;
 
-      let applicationServerKey = urlBase64ToUint8Array(pubKey);
-      // Subscribe
-      return registration.pushManager.subscribe({userVisibleOnly: true, applicationServerKey});
+    //   let applicationServerKey = urlBase64ToUint8Array(pubKey);
+    //   // Subscribe
+    //   return registration.pushManager.subscribe({userVisibleOnly: true, applicationServerKey});
 
-    }).then(sub => sub.toJSON())
-      .catch(console.log);
+    // }).then(sub => sub.toJSON())
+    //   .catch(console.log);
 
   }).catch(console.log);
 

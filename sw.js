@@ -1,9 +1,9 @@
 
 // Service Worker
-const pwaCache = "pwa-cache-1";
+const pwaCache = "pwa-cache-2";
 
 // Static assets to cache on install
-const staticCache = [ "/", "index.html", "/placeholder.png", "/style.css", "/thumb.png", "/main.js" ];
+const staticCache = [ "/", "index.html", "page2.html", "/placeholder.png", "/style.css", "/thumb.png", "/main.js" ];
 
 // SW install and cache static assets
 self.addEventListener("install", (e) => {
@@ -30,38 +30,26 @@ self.addEventListener("activate", (e) => {
 
 self.addEventListener("fetch", (e) => {
 
-  // Cache and network race with offline fallback
-  let firstResponse = new Promise((resolve, reject) => {
+  // Cache with Network Fallback
+  let res = caches.match(e.request).then((res) => {
+    // Check cache has response
+    if(res) return res;
 
-      // Track rejections
-      let firstRejectionReceived = false;
-      let rejectOnce = () => {
-      if(firstRejectionReceived) {
-            console.log("HERE");
-            if(e.request.url.match('thumb.png')) {
-                console.log("HERE 2");
-                resolve(caches.match("/placeholder.png"));
-            } else {
-                reject("No Response Received.");
-            }
-        } else {
-            firstRejectionReceived = true;
-        }
-      };
+    // Fallback to Network
+    return fetch(e.request).then((fetchRes) => {
 
-        // Try Network
-        fetch(e.request).then((res) => {
-            // check res ok
-            res.ok ? resolve(res) : rejectOnce();
-        }).catch(rejectOnce);
+        // Cache fetched response
+        caches.open(pwaCache).then((cache) => {
+           cache.put(e.request, fetchRes);
+        });
 
-        // Try Cache
-        caches.match(e.request).then((res) => {
-            // Check cache found
-            res ? resolve(res) : rejectOnce();
-        }).catch(rejectOnce);
+        // Return clone of fetched response
+        return fetchRes.clone();
+    });
   });
-  e.respondWith(firstResponse);
+      
+  // Respond
+  e.respondWith(res);
 
   // if (e.request.url.endsWith("/camera_feed.html")) {
 
