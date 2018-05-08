@@ -65,6 +65,7 @@ self.addEventListener("fetch", (e) => {
 });
 
 self.addEventListener("push", (e) => {
+    console.log("Push Notification.");
     let n = self.registration.showNotification("A notification from the SW");
     e.waitUntil(n);
 });

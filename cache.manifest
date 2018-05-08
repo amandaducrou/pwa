@@ -1,0 +1,15 @@
+CACHE MANIFEST
+# v1.1
+
+/
+index.html
+page2.html
+style.css
+main.js
+
+NETWORK:
+*
+
+FALLBACK:
+
+/thumb.png /placeholder.png
